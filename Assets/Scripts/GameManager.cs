@@ -84,8 +84,14 @@ public class GameManager : MonoBehaviour
 
     public void ShrinkBox()
     {
-        Box.DOSizeDelta(Box.sizeDelta - Vector2.one * BoxStep, 1f);
-
+        StepCounters[0]++; 
+        StepCounters[1]++; 
+        StepCounters[2]++; 
+        StepCounters[3]++; 
+        DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, 
+                    new Vector2(-BoxStep*StepCounters[1], -BoxStep*StepCounters[0]), 1f);
+        DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, 
+                    new Vector2(BoxStep*StepCounters[3], BoxStep*StepCounters[2]), 1f);
         // Check game end
     }
 
