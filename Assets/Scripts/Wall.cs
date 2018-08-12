@@ -22,7 +22,7 @@ public class Wall : MonoBehaviour
 
     public void TapHandler(object sender, EventArgs e)
     {
-        print("Tapped! " + direction);
+        //print("Tapped! " + direction);
         GameManager.Instance.ReceiveInput(direction);
     }
 }
