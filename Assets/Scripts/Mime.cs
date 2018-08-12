@@ -9,11 +9,16 @@ public class Mime : MonoBehaviour
     public Image sprite;
 
     public Queue<Direction> OrderList;
+    public Rigidbody[] Joints;
 
 
     private void Awake()
     {
         OrderList = new Queue<Direction>();
+        foreach(Rigidbody r in Joints)
+        {
+            r.maxDepenetrationVelocity = 60f;
+        }
     }
 
     public void Decide()
