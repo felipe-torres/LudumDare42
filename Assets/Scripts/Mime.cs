@@ -7,8 +7,6 @@ using DoodleStudio95;
 
 public class Mime : MonoBehaviour
 {
-    public Image sprite;
-
     public Queue<Direction> OrderList;
 
     public GameObject Model;
@@ -20,6 +18,12 @@ public class Mime : MonoBehaviour
     public MeshRenderer FaceRenderer;
     public Texture2D[] Faces;
     public Texture2D DeadFace;
+
+
+    public Wall UpWall;
+    public Wall RightWall;
+    public Wall DownWall;
+    public Wall LeftWall;
 
 
     private void Awake()
@@ -39,10 +43,6 @@ public class Mime : MonoBehaviour
     private IEnumerator DecideSequence()
     {
         OrderList.Clear(); // TEMP!!!
-
-        SwitchFace(Random.Range(0, Faces.Length));
-
-        sprite.transform.DOPunchScale(Vector3.one * 0.5f, 0.5f);
         int r = Random.Range(0, 4);
         switch (r)
         {
@@ -64,24 +64,24 @@ public class Mime : MonoBehaviour
 
     public void Up()
     {
-        sprite.transform.DORotate(Vector3.forward * 180f, 0.5f).SetEase(Ease.InOutBack);
+        UpWall.ActivateCue();
         OrderList.Enqueue(Direction.Up);
     }
     public void Right()
     {
-        sprite.transform.DORotate(Vector3.forward * 90f, 0.5f).SetEase(Ease.InOutBack);
+        RightWall.ActivateCue();
         OrderList.Enqueue(Direction.Right);
     }
 
     public void Down()
     {
-        sprite.transform.DORotate(Vector3.forward * 0f, 0.5f).SetEase(Ease.InOutBack);
+        DownWall.ActivateCue();
         OrderList.Enqueue(Direction.Down);
     }
 
     public void Left()
     {
-        sprite.transform.DORotate(Vector3.forward * -90f, 0.5f).SetEase(Ease.InOutBack);
+        LeftWall.ActivateCue();
         OrderList.Enqueue(Direction.Left);
     }
 
@@ -89,6 +89,16 @@ public class Mime : MonoBehaviour
     {
         //FaceAnimator.ChangeAnimation(Faces[index]);}
         FaceRenderer.material.mainTexture = Faces[index];
+    }
+
+    public void SwitchToGoodFace()
+    {
+        SwitchFace(Random.Range(0, 3));
+    }
+
+    public void SwitchToBadFace()
+    {
+        SwitchFace(Random.Range(3, Faces.Length));
     }
 
     public void Dissappear()

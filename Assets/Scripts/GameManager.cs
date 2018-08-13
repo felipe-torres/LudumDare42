@@ -39,9 +39,11 @@ public class GameManager : MonoBehaviour
     }
 
     private int[] StepCounters;
+    public bool CloseToDeath = false;
 
     // FX
     public ParticleSystem PuffParticles;
+    public ParticleSystem SweatParticles;
 
 
     // UI
@@ -76,6 +78,23 @@ public class GameManager : MonoBehaviour
         if (state != State.GameOver)
         {
             //print(LeftBounds + " " + RightBounds + " = " + (LeftBounds+RightBounds));
+            if (!CloseToDeath)
+            {
+                if ((LeftBounds + RightBounds >= 150 || TopBounds + BottomBounds >= 150))
+                {
+                    CloseToDeath = true;
+                    SweatParticles.Play();
+                }
+            }
+            else
+            {
+                if ((LeftBounds + RightBounds < 150 && TopBounds + BottomBounds < 150))
+                {
+                    CloseToDeath = false;
+                    SweatParticles.Stop();
+                }
+            }
+
             if (LeftBounds + RightBounds >= 325 || TopBounds + BottomBounds >= 356)
             {
                 print("GAME OVER");
@@ -97,11 +116,13 @@ public class GameManager : MonoBehaviour
         if (mime.OrderList.Peek() == d)
         {
             //print("correct!");
+            mime.SwitchToGoodFace();
             GrowBox(d);
         }
         else
         {
             //print("incorrect!");
+            mime.SwitchToBadFace();
             ShrinkBox(d);
         }
 
@@ -144,22 +165,22 @@ public class GameManager : MonoBehaviour
             case Direction.Up:
                 StepCounters[0]++;
                 DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x,
-                    new Vector2(Box.offsetMax.x, -BoxStep * StepCounters[0]), 1f);
+                    new Vector2(Box.offsetMax.x, -BoxStep * StepCounters[0]), 0.5f);
                 break;
             case Direction.Right:
                 StepCounters[1]++;
                 DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x,
-                    new Vector2(-BoxStep * StepCounters[1], Box.offsetMax.y), 1f);
+                    new Vector2(-BoxStep * StepCounters[1], Box.offsetMax.y), 0.5f);
                 break;
             case Direction.Down:
                 StepCounters[2]++;
                 DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x,
-                    new Vector2(Box.offsetMin.x, BoxStep * StepCounters[2]), 1f);
+                    new Vector2(Box.offsetMin.x, BoxStep * StepCounters[2]), 0.5f);
                 break;
             case Direction.Left:
                 StepCounters[3]++;
                 DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x,
-                    new Vector2(BoxStep * StepCounters[3], Box.offsetMin.y), 1f);
+                    new Vector2(BoxStep * StepCounters[3], Box.offsetMin.y), 0.5f);
                 break;
         }
     }
@@ -171,22 +192,22 @@ public class GameManager : MonoBehaviour
             case Direction.Up:
                 if ((StepCounters[0] - 1) * BoxStep < 0) break;
                 StepCounters[0]--;
-                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x, Box.offsetMax.y + BoxStep), 1f);
+                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x, Box.offsetMax.y + BoxStep), 0.5f);
                 break;
             case Direction.Right:
                 if ((StepCounters[1] - 1) * BoxStep < 0) break;
                 StepCounters[1]--;
-                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x + BoxStep, Box.offsetMax.y), 1f);
+                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x + BoxStep, Box.offsetMax.y), 0.5f);
                 break;
             case Direction.Down:
                 if ((StepCounters[2] - 1) * BoxStep < 0) break;
                 StepCounters[2]--;
-                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x, Box.offsetMin.y - BoxStep), 1f);
+                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x, Box.offsetMin.y - BoxStep), 0.5f);
                 break;
             case Direction.Left:
                 if ((StepCounters[3] - 1) * BoxStep < 0) break;
                 StepCounters[3]--;
-                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x - BoxStep, Box.offsetMin.y), 1f);
+                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x - BoxStep, Box.offsetMin.y), 0.5f);
                 break;
         }
     }
@@ -196,5 +217,6 @@ public class GameManager : MonoBehaviour
         mime.Dissappear();
         yield return new WaitForSeconds(0.25f);
         PuffParticles.Play();
+        SweatParticles.Stop();
     }
 }
