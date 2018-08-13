@@ -14,9 +14,34 @@ public class GameManager : MonoBehaviour
     public State state = State.Idle;
     public float StartTime = 5f;
     private Coroutine timer;
+
+    // Boxz
     public float BoxStep = 80f;
+    public float TopBounds
+    {
+        get { return -Box.offsetMax.y; }
+        set { Box.offsetMax = new Vector2(Box.offsetMax.x, -value); }
+    }
+    public float RightBounds
+    {
+        get { return -Box.offsetMax.x; }
+        set { Box.offsetMax = new Vector2(-value, Box.offsetMax.y); }
+    }
+    public float BottomBounds
+    {
+        get { return Box.offsetMin.y; }
+        set { Box.offsetMin = new Vector2(Box.offsetMin.x, value); }
+    }
+    public float LeftBounds
+    {
+        get { return Box.offsetMin.x; }
+        set { Box.offsetMin = new Vector2(value, Box.offsetMin.y); }
+    }
 
     private int[] StepCounters;
+
+    // FX
+    public ParticleSystem PuffParticles;
 
 
     // UI
@@ -45,21 +70,38 @@ public class GameManager : MonoBehaviour
         yield return timer;
     }
 
+    public void Update()
+    {
+        // Check game termination
+        if (state != State.GameOver)
+        {
+            //print(LeftBounds + " " + RightBounds + " = " + (LeftBounds+RightBounds));
+            if (LeftBounds + RightBounds >= 325 || TopBounds + BottomBounds >= 356)
+            {
+                print("GAME OVER");
+                state = State.GameOver;
+                StopAllCoroutines();
+                StartCoroutine(GameOverSequence());
+            }
+        }
+
+    }
+
     public void ReceiveInput(Direction d)
     {
         // Stop time sequence
         StopCoroutine(timer);
 
         // Check input correctness
-        print("Compare:" + mime.OrderList.Peek());
+        //print("Compare:" + mime.OrderList.Peek());
         if (mime.OrderList.Peek() == d)
         {
-            print("correct!");
+            //print("correct!");
             GrowBox(d);
         }
         else
         {
-            print("incorrect!");
+            //print("incorrect!");
             ShrinkBox(d);
         }
 
@@ -84,14 +126,14 @@ public class GameManager : MonoBehaviour
 
     public void ShrinkBox()
     {
-        StepCounters[0]++; 
-        StepCounters[1]++; 
-        StepCounters[2]++; 
-        StepCounters[3]++; 
-        DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, 
-                    new Vector2(-BoxStep*StepCounters[1], -BoxStep*StepCounters[0]), 1f);
-        DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, 
-                    new Vector2(BoxStep*StepCounters[3], BoxStep*StepCounters[2]), 1f);
+        StepCounters[0]++;
+        StepCounters[1]++;
+        StepCounters[2]++;
+        StepCounters[3]++;
+        DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x,
+                    new Vector2(-BoxStep * StepCounters[1], -BoxStep * StepCounters[0]), 1f);
+        DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x,
+                    new Vector2(BoxStep * StepCounters[3], BoxStep * StepCounters[2]), 1f);
         // Check game end
     }
 
@@ -100,24 +142,24 @@ public class GameManager : MonoBehaviour
         switch (direction)
         {
             case Direction.Up:
-                StepCounters[0]++; 
-                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, 
-                    new Vector2(Box.offsetMax.x, -BoxStep*StepCounters[0]), 1f);
+                StepCounters[0]++;
+                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x,
+                    new Vector2(Box.offsetMax.x, -BoxStep * StepCounters[0]), 1f);
                 break;
             case Direction.Right:
                 StepCounters[1]++;
-                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, 
-                    new Vector2(-BoxStep*StepCounters[1], Box.offsetMax.y), 1f);
+                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x,
+                    new Vector2(-BoxStep * StepCounters[1], Box.offsetMax.y), 1f);
                 break;
             case Direction.Down:
                 StepCounters[2]++;
-                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, 
-                    new Vector2(Box.offsetMin.x, BoxStep*StepCounters[2]), 1f);
+                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x,
+                    new Vector2(Box.offsetMin.x, BoxStep * StepCounters[2]), 1f);
                 break;
             case Direction.Left:
                 StepCounters[3]++;
-                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, 
-                    new Vector2(BoxStep*StepCounters[3], Box.offsetMin.y), 1f);
+                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x,
+                    new Vector2(BoxStep * StepCounters[3], Box.offsetMin.y), 1f);
                 break;
         }
     }
@@ -127,25 +169,32 @@ public class GameManager : MonoBehaviour
         switch (direction)
         {
             case Direction.Up:
-                if ((StepCounters[0]-1)*BoxStep < 0) break;
+                if ((StepCounters[0] - 1) * BoxStep < 0) break;
                 StepCounters[0]--;
                 DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x, Box.offsetMax.y + BoxStep), 1f);
                 break;
             case Direction.Right:
-                if ((StepCounters[1]-1)*BoxStep < 0) break;
+                if ((StepCounters[1] - 1) * BoxStep < 0) break;
                 StepCounters[1]--;
                 DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x + BoxStep, Box.offsetMax.y), 1f);
                 break;
             case Direction.Down:
-                if ((StepCounters[2]-1)*BoxStep < 0) break;
+                if ((StepCounters[2] - 1) * BoxStep < 0) break;
                 StepCounters[2]--;
                 DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x, Box.offsetMin.y - BoxStep), 1f);
                 break;
             case Direction.Left:
-                if ((StepCounters[3]-1)*BoxStep < 0) break;
+                if ((StepCounters[3] - 1) * BoxStep < 0) break;
                 StepCounters[3]--;
                 DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x - BoxStep, Box.offsetMin.y), 1f);
                 break;
         }
+    }
+
+    public IEnumerator GameOverSequence()
+    {
+        mime.Dissappear();
+        yield return new WaitForSeconds(0.25f);
+        PuffParticles.Play();
     }
 }
