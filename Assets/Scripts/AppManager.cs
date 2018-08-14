@@ -8,30 +8,37 @@ using DoodleStudio95;
 // App Manager, active through all game
 public class AppManager : MonoBehaviour
 {
-	public static AppManager Instance;
+    public static AppManager Instance;
 
-	public GraphicRaycaster raycaster;
+    public GraphicRaycaster raycaster;
 
-	// Loading screen
-	public DoodleAnimator Curtain;
+    // Loading screen
+    public DoodleAnimator Curtain;
 
-	void Awake()
-	{
-		Instance = this;
-		DontDestroyOnLoad(this.gameObject);
-	}
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+			Destroy(this.gameObject);
+        }
+    }
 
-	public void LoadScene(int index)
-	{
-		StartCoroutine(LoadSceneSequence(index));
-	}
+    public void LoadScene(int index)
+    {
+        StartCoroutine(LoadSceneSequence(index));
+    }
 
-	private IEnumerator LoadSceneSequence(int index)
-	{
-		raycaster.enabled = true;
-		yield return Curtain.PlayAndPauseAt(0, 12);
-		yield return SceneManager.LoadSceneAsync(index);
-		yield return Curtain.PlayAndPauseAt(12, 0);
-		raycaster.enabled = false;
-	}
+    private IEnumerator LoadSceneSequence(int index)
+    {
+        raycaster.enabled = true;
+        yield return Curtain.PlayAndPauseAt(0, 12);
+        yield return SceneManager.LoadSceneAsync(index);
+        yield return Curtain.PlayAndPauseAt(12, 0);
+        raycaster.enabled = false;
+    }
 }

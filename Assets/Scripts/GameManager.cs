@@ -59,6 +59,11 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
+        Invoke("StartGameLoop", 2f);
+    }
+
+    public void StartGameLoop()
+    {
         StartCoroutine(GameLoop());
     }
 
@@ -95,7 +100,7 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            if (LeftBounds + RightBounds >= 325 || TopBounds + BottomBounds >= 356)
+            if (LeftBounds + RightBounds >= 250 || TopBounds + BottomBounds >= 356)
             {
                 print("GAME OVER");
                 state = State.GameOver;
@@ -109,7 +114,8 @@ public class GameManager : MonoBehaviour
     public void ReceiveInput(Direction d)
     {
         // Stop time sequence
-        StopCoroutine(timer);
+        if(timer == null) return;
+        if(timer != null) StopCoroutine(timer);
 
         // Check input correctness
         //print("Compare:" + mime.OrderList.Peek());
@@ -165,22 +171,22 @@ public class GameManager : MonoBehaviour
             case Direction.Up:
                 StepCounters[0]++;
                 DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x,
-                    new Vector2(Box.offsetMax.x, -BoxStep * StepCounters[0]), 0.5f);
+                    new Vector2(Box.offsetMax.x, -BoxStep * StepCounters[0]), 0.25f);
                 break;
             case Direction.Right:
                 StepCounters[1]++;
                 DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x,
-                    new Vector2(-BoxStep * StepCounters[1], Box.offsetMax.y), 0.5f);
+                    new Vector2(-BoxStep * StepCounters[1], Box.offsetMax.y), 0.25f);
                 break;
             case Direction.Down:
                 StepCounters[2]++;
                 DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x,
-                    new Vector2(Box.offsetMin.x, BoxStep * StepCounters[2]), 0.5f);
+                    new Vector2(Box.offsetMin.x, BoxStep * StepCounters[2]), 0.25f);
                 break;
             case Direction.Left:
                 StepCounters[3]++;
                 DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x,
-                    new Vector2(BoxStep * StepCounters[3], Box.offsetMin.y), 0.5f);
+                    new Vector2(BoxStep * StepCounters[3], Box.offsetMin.y), 0.25f);
                 break;
         }
     }
@@ -192,22 +198,22 @@ public class GameManager : MonoBehaviour
             case Direction.Up:
                 if ((StepCounters[0] - 1) * BoxStep < 0) break;
                 StepCounters[0]--;
-                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x, Box.offsetMax.y + BoxStep), 0.5f);
+                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x, Box.offsetMax.y + BoxStep), 0.25f);
                 break;
             case Direction.Right:
                 if ((StepCounters[1] - 1) * BoxStep < 0) break;
                 StepCounters[1]--;
-                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x + BoxStep, Box.offsetMax.y), 0.5f);
+                DOTween.To(() => Box.offsetMax, x => Box.offsetMax = x, new Vector2(Box.offsetMax.x + BoxStep, Box.offsetMax.y), 0.25f);
                 break;
             case Direction.Down:
                 if ((StepCounters[2] - 1) * BoxStep < 0) break;
                 StepCounters[2]--;
-                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x, Box.offsetMin.y - BoxStep), 0.5f);
+                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x, Box.offsetMin.y - BoxStep), 0.25f);
                 break;
             case Direction.Left:
                 if ((StepCounters[3] - 1) * BoxStep < 0) break;
                 StepCounters[3]--;
-                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x - BoxStep, Box.offsetMin.y), 0.5f);
+                DOTween.To(() => Box.offsetMin, x => Box.offsetMin = x, new Vector2(Box.offsetMin.x - BoxStep, Box.offsetMin.y), 0.25f);
                 break;
         }
     }
@@ -218,5 +224,8 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.25f);
         PuffParticles.Play();
         SweatParticles.Stop();
+
+        yield return new WaitForSeconds(1.5f);
+        AppManager.Instance.LoadScene(0);
     }
 }

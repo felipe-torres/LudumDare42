@@ -24,10 +24,11 @@ public class TitleWords : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(1f);
             StartCoroutine(ShowSentenceSeq(Sentence1));
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(3f);
             StartCoroutine(ShowSentenceSeq(Sentence2));
+            yield return new WaitForSeconds(2f);
         }
     }
 
